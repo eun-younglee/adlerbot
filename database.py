@@ -15,7 +15,7 @@ class Database:
         if not self.client:
             self.client = await acreate_client(SUPABASE_URL, SUPABASE_KEY)
 
-    async def add_reminder(self, user_id: str, channel_id: str, task: str, original_text: str, adler_message: str, remind_at: str):
+    async def add_reminder(self, user_id: str, channel_id: str, task: str, original_text: str, adler_message: str, remind_at: str = None):
         await self.connect()
         data = {
             "user_id": user_id,
@@ -24,7 +24,7 @@ class Database:
             "original_text": original_text,
             "adler_message": adler_message,
             "remind_at": remind_at,
-            "is_sent": False
+            "is_sent": False if remind_at else True
         }
         return await self.client.table("planner").insert(data).execute()
 

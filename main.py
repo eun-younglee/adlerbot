@@ -36,16 +36,17 @@ async def on_message(message):
                 # Get stylized response and extraction from LLM
                 adler_res = await get_adler_decision(user_input)
                 
-                # Check if time was extracted
+                # Always save to DB for logging
+                await db.add_reminder(
+                    user_id=str(message.author.id),
+                    channel_id=str(message.channel.id),
+                    task=adler_res.task,
+                    original_text=user_input,
+                    adler_message=adler_res.adler_style_text,
+                    remind_at=adler_res.remind_at
+                )
+
                 if adler_res.remind_at:
-                    await db.add_reminder(
-                        user_id=str(message.author.id),
-                        channel_id=str(message.channel.id),
-                        task=adler_res.task,
-                        original_text=user_input,
-                        adler_message=adler_res.adler_style_text,
-                        remind_at=adler_res.remind_at
-                    )
                     # Immediate confirmation: Brief task only
                     await message.channel.send(f"**Task Received:** {adler_res.task}\n*(Scheduled for: {adler_res.remind_at})*")
                 else:
